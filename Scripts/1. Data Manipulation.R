@@ -175,6 +175,17 @@ combined_tbi <- cbind(tbi_data1, tbi_data2)
 write.csv(combined_tbi, "~/WGCNALASSO/Output/combined_tbi.csv", 
           row.names = TRUE)
 
+# Create combined trait data for the combined dataset and batch column
+
+# Create batch variable
+batch_tbi <- c(rep("batch1", ncol(tbi_data1)), rep("batch2", ncol(tbi_data2)))
+
+# Add batch column and combine the trait data
+combined_trait_tbi <- rbind(trait_TBI1 %>% mutate(Batch = "batch1"),
+                            trait_TBI2 %>% mutate(Batch = "batch2"))
+
+write.csv(combined_trait_tbi, "~/WGCNALASSO/Output/combined_trait_tbi", 
+          row.names = TRUE)
 
 # Load third TBI dataset
 tbi_data3 <- read.delim("~/WGCNALASSO/Input/GSE80174_Cortex_DEseq2_raw_counts.txt")
