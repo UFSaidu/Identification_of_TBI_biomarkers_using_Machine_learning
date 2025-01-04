@@ -82,3 +82,35 @@ pheatmap(heatmap_data, scale = "row", annotation_col = anno_col,
          legend_title = "Z-score",
          fontsize = 11, cellwidth = 35, cellheight = 10.25)
 
+# Create a volcano plot
+
+vol_degs <- genes.sig
+
+vol_degs$Regulation <- ifelse(vol_degs$log2FoldChange > 0.5,"Upregulated", 
+                      ifelse(vol_degs$log2FoldChange < -0.5,"Downregulated", 
+                             "NS"))
+
+# Select the top 5 upregulated and downregulated genes
+top5_up <- vol_degs[vol_degs$Regulation == "Upregulated", ]
+top5_up <- top5_up[order(-top5_up$log2FoldChange), ][1:5, ]
+
+top5_down <- vol_degs[vol_degs$Regulation == "Downregulated", ]
+top5_down <- top5_down[order(top5_down$log2FoldChange), ][1:5, ]
+
+# combine top genes
+top_genes <- rbind(top5_up, top5_down)
+
+vol_degs$Label <- ifelse(rownames(vol_degs) %in% 
+                         rownames(top_genes),
+                         rownames(vol_degs), "")
+
+# Create the volcano plot
+volcano_plot <- ggplot(vol_degs, aes(x = log2FoldChange, y = -log10(padj),
+                                     color = Regulation)) +
+  geom_point(alpha = 0.6, size = 2) +
+  geom_text(aes(label = Label), vjust = -0.5, size = 3, color ="black") +
+  theme_minimal() +
+  labs(title = "Volcano plot of DE genes") +
+  theme(plot.title = element_text(hjust = 0.5))
+
+print(volcano_plot)
