@@ -56,12 +56,29 @@ genes.sig <- as.data.frame(genes.sig)
 write.csv(genes.sig,file = "~/WGCNALASSO/Output/genes.sig.csv")
 saveRDS(genes.sig, "~/WGCNALASSO/Output/genes.sig.rds")
 
+# You can save the list of DEGs as vector if you want
 id_degs <- rownames(genes.sig)
 write.csv(id_degs,file = "~/WGCNALASSO/Output/id_degs.txt", row.names = FALSE)
-            
-# You can save the list of DEGs as vector if you want
-res_o.o5$geneID = rownames(res_o.o5)
-geneID <- unique(genes.sig$geneID)
-write.table(geneID,file = "~/WGCNALASSO/Output/geneID.txt" , quote = F, 
-            row.names = F, col.names = F)
-saveRDS(geneID, "~/WGCNALASSO/Output/geneID.rds")
+
+##================Create DE genes Visualizations=======================##
+
+# Select the top 30 DEGs ranked by p-adjusted values. i.e most significant
+top_30_DEGs <- genes.sig[1:30, ]
+
+# Subset expression data to only include the 30 DEGs
+heatmap_data <- combined_tbi[rownames(top_30_DEGs), ]
+
+# Create annotation data
+anno_col <- data.frame(combined_trait_tbi[, 1])
+colnames(anno_col) <- "Group"
+rownames(anno_col) <- colnames(combined_tbi)
+
+pheatmap(heatmap_data, scale = "row", annotation_col = anno_col,
+         color = colorRampPalette(c("navy", "white", "red"))(50),
+         annotation_colors = list(Group=c(TBI = "black", HC = "orange")),
+         cutree_cols = 2,
+         cutree_rows = 2,
+         main = "Expression and clustering of top 30 DE genes",
+         legend_title = "Z-score",
+         fontsize = 11, cellwidth = 35, cellheight = 10.25)
+
