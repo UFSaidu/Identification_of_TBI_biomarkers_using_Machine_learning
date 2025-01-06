@@ -78,3 +78,15 @@ dev.off()
 png("~/WGCNALASSO/Output/gsea10.png", res =  300, width = 2000, height = 1600)
 print(gsea10)
 dev.off()
+
+# Create dot plot
+gsea_dot <- dotplot(gsea, showCategory = 8, split = '.sign', 
+                    title = "Enriched Biological Processes") +
+  facet_grid(.~.sign) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text.y = element_text(size = 8)
+  )
+
+print(gsea_dot)
+ggsave("~/WGCNALASSO/Output/gsea_dot.png", plot = gsea_dot, height = 6, 
+       width = 8)
