@@ -11,7 +11,7 @@ ranked_gene_list <- genes.sig$log2FoldChange
 names(ranked_gene_list) <- rownames(genes.sig)
 ranked_gene_list <- sort(ranked_gene_list, decreasing = TRUE)
 
-# Perform GSEA for diabetes DEGs
+# Perform GSEA of the DEGs
 
 gsea <- gseGO(geneList = ranked_gene_list,
                        OrgDb = org.Rn.eg.db,
