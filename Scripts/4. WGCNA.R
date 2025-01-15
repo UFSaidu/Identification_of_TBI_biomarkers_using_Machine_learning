@@ -82,10 +82,11 @@ a1 <- ggplot(sft_data, aes(Power, SFT.R.sq, label = Power)) +
   geom_point() +
   geom_text(nudge_y = 0.1) +
   geom_hline(yintercept = 0.8, color = "red") +
-  labs(x = "Power", y = "Scale free topology model fit, R^2") +
+  labs(title = "Scale Independence",
+       x = "Soft Threshold (Power)", 
+       y = "Scale Free Topology Model Fit, signed R^2") +
   theme_classic() +
-  theme(
-    plot.title = element_text(hjust = 0.5, face = "bold"),
+  theme(plot.title = element_text(hjust = 0.5, face = "bold"),
     panel.border = element_rect(color = "black", fill = NA, size = 1)
   )
 
@@ -93,13 +94,14 @@ a1 <- ggplot(sft_data, aes(Power, SFT.R.sq, label = Power)) +
 a2 <- ggplot(sft_data, aes(Power, mean.k., label = Power)) +
   geom_point() +
   geom_text(nudge_y = 0.1) +
-  labs(x = "Power", y = "Mean Connectivity") +
+  labs(title = "Mean Connectivity",
+       x = "Soft Threshold (Power)", 
+       y = "Mean Connectivity") +
   theme_classic() +
   theme(
     plot.title = element_text(hjust = 0.5, face = "bold"),
     panel.border = element_rect(color = "black", fill = NA, size = 1)
   )
-
 
 # Arrange plots in an object
 softThreshold_plot <- grid.arrange(a1, a2, nrow = 1)
@@ -163,7 +165,7 @@ trait <- meta_data %>%
 moduleTraitCor <- cor(moduleEigengenes, trait, 
                       method = "spearman", use = "p")
 moduleTraitPvalue <- corPvalueStudent(moduleTraitCor, 
-                                      nSamples = ncol(combat_tbi))
+                                      nSamples = ncol(filtered_data))
 
 # Visualize module-trait correlation as a heatmap
 heatmap_data <- merge(moduleEigengenes, trait, by = 'row.names')
@@ -201,7 +203,9 @@ genes_tbi <- module_gene_mapping %>%
   rownames()
 
 # Save genes to file for further analysis
-write.csv2(genes_tbi, "~/WGCNALASSO/Output/genes_tbi.txt")
+write.csv(genes_green, "~/WGCNALASSO/Output/genes_green.csv", row.names = FALSE)
+write.csv(genes_brown, "~/WGCNALASSO/Output/genes_brown.csv", row.names = FALSE)
+write.csv(genes_tbi, "~/WGCNALASSO/Output/genes_tbi.csv", row.names = FALSE)
 
 ##==============Intramodular analysis: To identify driver genes=============##
 
@@ -225,7 +229,7 @@ colnames(moduleMembership) <- paste0("MM_", names(moduleEigengenes))
 write.csv(moduleMembership, "~/WGCNALASSO/Output/moduleMembership.csv", 
           row.names = TRUE)
 
-# Extract module membership (MM) and gene significance (GS) for turquoise module
+# Extract module membership (MM) and gene significance (GS) for green module
 MM_green <- moduleMembership[moduleColors == "green", "MM_MEgreen"]
 GS_green <- GS_cor[moduleColors == "green", , drop = FALSE]
 
