@@ -296,3 +296,8 @@ ggsave("~/WGCNALASSO/Output/plot_brown.png",
 save(genes_green, genes_brown, genes_tbi,
      file = "~/WGCNALASSO/Output/genes.RData")
 
+# Brown module has the highest correlation and gene significance with TBI,
+# Thus, get hub genes of brown module for further analysis.
+
+WGCNA_hub <- genes_brown[which(MM_brown > 0.83 & GS_brown > 0.58)]
+write.csv(WGCNA_hub, "~/WGCNALASSO/Output/WGCNA_hub.csv", row.names = FALSE)
