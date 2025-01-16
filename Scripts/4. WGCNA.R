@@ -301,3 +301,39 @@ save(genes_green, genes_brown, genes_tbi,
 
 WGCNA_hub <- genes_brown[which(MM_brown > 0.83 & GS_brown > 0.58)]
 write.csv(WGCNA_hub, "~/WGCNALASSO/Output/WGCNA_hub.csv", row.names = FALSE)
+
+PPI_hub <- c("Hck", "Csf1r", "Tyrobp", "Irf9", "Aif1", "C1qa", "Stat1", "Lcp2",
+             "Itgb2", "Ifih1", "Lyn", "Ptprc", "Fcer1g", "Was", "Cx3cr1", "Syk",
+             "Icam1", "Ifi44", "Vav1", "Prkcd", "Rac2", "Mx2", "Irf7",
+             "Itgad", "Tlr2", "Fcgr1a", "Mx1", "Eif2ak2",
+             "Shc1", "Trem2") 
+
+PPI_hub <- as.data.frame(PPI_hub)
+
+colnames(WGCNA_hub) <- "Gene"
+colnames(PPI_hub) <- colnames(WGCNA_hub)
+
+true_hub <- intersect(WGCNA_hub, PPI_hub)
+
+install.packages("VennDiagram")
+library(VennDiagram)
+
+# Extract gene names from the data frames
+wgcna_genes <- WGCNA_hub$Gene
+ppi_genes <- PPI_hub$Gene
+
+# Create the venn diagram
+venn.plot <- venn.diagram(
+  x = list(`WGCNA Hub genes` = wgcna_genes, `PPI Hub genes` = ppi_genes),
+  filename = "~/WGCNALASSO/Output/true_hub.png",
+  fill = c("blue", "red"),
+  alpha = 0.5,
+  cex = 1.5,
+  cat.cex = 1.5,
+  cat.pos = c(-20, 20)
+)
+
+# If filename is set to NULL, then view the venn diagram using grid draw
+grid::grid.draw(venn.plot)
+
+save(WGCNA_hub, PPI_hub, true_hub, file = "~/WGCNALASSO/Output/hub_genes.RData")
