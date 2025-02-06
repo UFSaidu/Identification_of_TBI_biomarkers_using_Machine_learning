@@ -133,3 +133,41 @@ ggplot(df,
         axis.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold"))
 
+#==================Perform SVM-RFE Algorithm======================#
+set.seed(123)
+svm_fit <- rfe(X, as.factor(y), sizes = c(1:15),
+               rfeControl = rfeControl(functions = caretFuncs, method = "cv"))
+
+# Extract selected genes
+selected_genes_svm <- predictors(svm_fit, )
+
+# Plots
+results <- svm_fit$results
+
+max_accuracy <- max(results$Accuracy)
+best_variables <- results$Variables[which.max(results$Accuracy)]
+
+# Plot cross-validation accuracy
+ggplot(results, 
+       aes(x = Variables, y = Accuracy)) +
+  geom_line(color = "blue") +
+  geom_point(size = 2, color = "blue") +
+  annotate("text", x = best_variables, y = max_accuracy,
+           label = paste(round(max_accuracy, 2)),
+           color = "red", hjust = 1.3, vjust = 0.3) +
+  labs(x = "Number of Features",
+       y = "Accuracy (Cross-Validation)") +
+  theme(axix.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) +
+  theme_bw()
+
+# Plot cross-validation Error
+ggplot(results, 
+       aes(x = Variables, y = 1 - Accuracy)) +
+  geom_line(color = "blue") +
+  geom_point(size = 2, color = "blue") +
+  labs(x = "Number of Features",
+       y = "Error (Cross-Validation)") +
+  theme(axix.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold")) +
+  theme_bw()
