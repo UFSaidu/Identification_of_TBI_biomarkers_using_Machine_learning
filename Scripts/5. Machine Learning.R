@@ -213,3 +213,17 @@ nom <- nomogram(logist_model, fun = plogis,
                 fun.at = c(0.1, 0.5, 0.9),
                 funlabel = "Disease Risk")
 plot(nom)
+
+# Calibration plot
+cal <- calibrate(logist_model, method = "boot", B = 1000)
+
+plot(cal, xlab = "Predicted Probability", legend = FALSE, 
+     subtitles =  FALSE, cex.axis = 0.8,
+     cex.lab = 0.8, ce.main = 0.9)
+abline(0,1, col = "red", lty = 2)
+legend("bottomright", 
+       legend = c("Apparent", "Bias-corrected", "Ideal"),
+       lty = c(3, 1, 2),
+       col = c("black", "black", "red"),
+       cex = 0.3,
+       y.intersp = 0.8)
