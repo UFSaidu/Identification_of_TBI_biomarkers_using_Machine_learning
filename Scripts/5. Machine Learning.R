@@ -54,3 +54,43 @@ ggsave("~/WGCNALASSO/Output/hub_genes_box_plot.png",
        combined_plot, width = 26, 
        height = 15, background = "white", dpi = 600)
 
+#==========Machine Learning Identification of core genes of TBI===========#
+
+# We'll use DESeq2 variance-stabilized transformation (vst) data instead of
+# the raw datasets. Vst data is normalized, corrected for sequencing depth, 
+# and has same variance. This is more suitable for downstream analysis like
+# MACHINE LEARNING. Our vst transformed training data is saved as filtered_data.
+
+# Install packages
+install.packages("glmnet")
+library(glmnet)
+install.packages("pROC")
+library(pROC)
+install.packages("caret")
+library(caret)
+install.packages("randomForest")
+library(randomForest)
+install.packages("e1071")
+library(e1071)
+install.packages("xgboost")
+library(xgboost)
+
+# Get vector of the 16 true hub genes
+gene_list <- true_hub$Gene
+
+#=================Perform LASSO Regression========================#
+# Prepare data
+X <- t(filtered_data[gene_list, ])
+y <- as.numeric(combined_trait_tbi$Group == 'TBI')
+
+# Fit LASSO
+set.seed(123)
+cv_fit <- cv.glmnet(X, y, alpha = 1, family = 'binomial')
+lasso_fit <- glmnet(X, y, alpha = 1, lambda = cv_fit$lambda.min)
+
+# Extract selected genes
+selected_genes_lasso <- rownames(coef(lasso_fit))[which(coef(lasso_fit) != 0)][-1]
+
+# Plot
+plot(cv_fit)
+plot(cv_fit$glmnet.fit, xvar = "lambda", label = TRUE)
