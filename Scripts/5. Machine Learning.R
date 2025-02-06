@@ -74,6 +74,8 @@ install.packages("e1071")
 library(e1071)
 install.packages("xgboost")
 library(xgboost)
+install.packages("rms")
+library(rms)
 
 # Get vector of the 16 true hub genes
 gene_list <- true_hub$Gene
@@ -195,3 +197,19 @@ cex = 1.5,
 cat.cex = 1.5,
 cat.pos = c(-35, 25, 180))
 
+#================Perform Nomogram and Decision Curve Analysis=================#
+# Prepare data
+X <- t(filtered_data[core_genes, ])
+y <- as.numeric(combined_trait_tbi$Group == 'TBI')
+data <- data.frame(X, Group = y)
+
+# Fit logistic regression
+ddist <- datadist(data)
+options(datadist = "ddist")
+logist_model <- lrm(Group ~ ., data = data)
+
+# Create nomogram
+nom <- nomogram(logist_model, fun = plogis, 
+                fun.at = c(0.1, 0.5, 0.9),
+                funlabel = "Disease Risk")
+plot(nom)
