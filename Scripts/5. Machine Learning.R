@@ -171,3 +171,27 @@ ggplot(results,
   theme(axix.title.x = element_text(face = "bold"),
         axis.title.y = element_text(face = "bold")) +
   theme_bw()
+
+#=====================Extract common core genes=====================#
+# Get common genes present in all three algorithms
+ml_gene_lists <- list(selected_genes_lasso,
+                      selected_genes_RF,
+                      selected_genes_svm)
+# Extract core genes
+core_genes <- Reduce(intersect, ml_gene_lists)
+
+saveRDS(core_genes, file = "~/WGCNALASSO/Output/core_genes.rds")
+
+# Create Venn diagram
+venn_plot <- venn.diagram(x = list(
+  LASSO = selected_genes_lasso,
+  RandomForest = selected_genes_RF,
+  `SVM-RFE` = selected_genes_svm
+),
+filename = "~/ML_AI/venn.png",
+fill = c("blue", "red", "green"),
+alpha = 0.5,
+cex = 1.5,
+cat.cex = 1.5,
+cat.pos = c(-35, 25, 180))
+
