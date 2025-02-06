@@ -94,3 +94,42 @@ selected_genes_lasso <- rownames(coef(lasso_fit))[which(coef(lasso_fit) != 0)][-
 # Plot
 plot(cv_fit)
 plot(cv_fit$glmnet.fit, xvar = "lambda", label = TRUE)
+
+#==================Perform Random Forest Algorithm======================#
+# Train Random Forest
+set.seed(123)
+rf_fit <- randomForest(x = X, y = as.factor(y), 
+                       importance = TRUE, 
+                       ntree = 1000)
+
+# Extract important genes
+importance_scores <- importance(rf_fit)
+selected_genes_RF <- rownames(importance_scores)[order(importance_scores[, "MeanDecreaseGini"],
+                                                       decreasing = TRUE)][1:5]
+
+# Plots
+plot(rf_fit, main = "Random Forest")
+
+top_5_genes <- importance_scores[selected_genes_RF, "MeanDecreaseGini"]
+
+df <- data.frame(Gene = selected_genes_RF,
+                 Importance = top_5_genes)
+
+# Rank Genes based on importance
+df <- df[order(df$Importance, decreasing = TRUE), ]
+df$Gene <- factor(df$Gene, levels = df$Gene)
+
+ggplot(df,
+       aes(x = Importance, y = Gene)) +
+  geom_segment(aes(xend = 0, yend = Gene), colour = "grey", size = 1.5) +
+  geom_point(aes(fill = Importance), shape = 21, size = 5, stroke = 1.2) +
+  scale_y_discrete(limits = rev(df$Gene)) +
+  labs(x = "Importance",
+       y = "Gene",
+       fill = "Importance") +
+  scale_fill_gradient(low = "skyblue", high = "red") +
+  theme_bw() +
+  theme(legend.title = element_text(face = "bold"),
+        axis.title.x = element_text(face = "bold"),
+        axis.title.y = element_text(face = "bold"))
+
