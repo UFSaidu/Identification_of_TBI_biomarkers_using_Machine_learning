@@ -231,3 +231,25 @@ legend("bottomright",
        y.intersp = 0.8)
 
 # Decision analysis
+# Add probability to the data
+data$pred_prob <- pred_prob
+dca_data <- decision_curve(Group ~ pred_prob, data = data,
+                           fitted.risk = TRUE, 
+                           thresholds = seq(0, 1, by = 0.01))
+
+# Plot
+plot_decision_curve(dca_data, col = "black",
+                    xlab = "Threshold Probability", 
+                    ylab = "Net Benefit",
+                    legend.position = "none",
+                    curve.names = "two genes",
+                    cost.benefit.axis = TRUE,
+                    confidence.intervals = FALSE)
+legend("topright",
+       legend = c("two genes", "All", "None"),
+       lwd = c(2, 1, 1),
+       col = c("black", "grey", "black"),
+       cex = 0.8,
+       x.intersp = 0.2,
+       y.intersp = 0.3,
+       bty = "n")
