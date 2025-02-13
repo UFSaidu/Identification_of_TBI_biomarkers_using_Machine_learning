@@ -76,6 +76,8 @@ install.packages("xgboost")
 library(xgboost)
 install.packages("rms")
 library(rms)
+install.packages("rmda")
+library(rmda)
 
 # Get vector of the 16 true hub genes
 gene_list <- true_hub$Gene
@@ -227,3 +229,5 @@ legend("bottomright",
        col = c("black", "black", "red"),
        cex = 0.3,
        y.intersp = 0.8)
+
+# Decision analysis
