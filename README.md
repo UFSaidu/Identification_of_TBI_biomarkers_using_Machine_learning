@@ -12,4 +12,4 @@
 
 📌 **This README will be updated as the project progresses.**  
 
-Last updated: **April 2024**
+Last updated: **February 2025**
