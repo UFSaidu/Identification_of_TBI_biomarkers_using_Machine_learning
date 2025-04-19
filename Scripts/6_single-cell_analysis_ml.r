@@ -5,12 +5,12 @@
   install.packages("Seurat")
   install.packages("tidyverse")
   install.packages("patchwork")
-  install.packages("ggpur") # For stat_compare_means()
+  install.packages("ggpubr") # For stat_compare_means()
 
   library(tidyverse)
   library(Seurat)
   library(patchwork)
-  library(ggpur)
+  library(ggpubr)
 
   #--------------------------------------------------
   # Step 1: Prepare Data for Seurat object
@@ -77,3 +77,53 @@
   # TBI2     0   x
   # TBI3     0   x
   # (where x is the number of cells per sample)
+
+# Since we are validating a known set of genes, it's good to first check if genes exist in your data. 
+# This is important so as not to waste time on a data with no gene of interest.
+
+# Check if genes are present
+genes_to_check <- c("Icam1", "Tyrobp")
+genes_found <- genes_to_check[genes_to_check %in% rownames(seurat_obj)]
+if (length(genes_found) < length(genes_to_check)) {
+  warning("Missing genes: ", setdiff(genes_to_check, genes_found))
+}
+
+print(genes_to_check)
+
+#--------------------------------------------------
+  # Step 2: Preprocessing and Quality Control
+#--------------------------------------------------
+
+# Calculate percentage of mitochondrial genes
+seurat_obj[["percent.mt"]] <- PercentFeatureSet(seurat_obj, 
+  pattern = "^MT-|^mt-|^Mt-|^mito-|^Mito-")
+
+VlnPlot(seurat_obj, 
+        features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), 
+        group.by = "condition"
+        ncol = 3)
+
+# Get an idea of the correlation between the QC metrics before filtering
+plot1 <- FeatureScatter(seurat_obj, 
+  feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "condition")
+plot2 <- FeatureScatter(seurat_obj, 
+  feature1 = "nCount_RNA", feature2 = "nFeature_RNA", group.by = "condition")
+plot1 + plot2
+
+# Our data showed significantly high mitochondrial genes. Some cells have high mitochondrial
+# genes above 40%. We'll filter those cells and only keep cells with %mito below 10%.
+
+# Filter out low cells and mitochondrial genes
+seurat_obj <- subset(seurat_obj, 
+                     subset = nFeature_RNA > 200 & nFeature_RNA < 3000 & percent.mt < 10)
+
+VlnPlot(seurat_obj, 
+        features = c("nFeature_RNA", "nCount_RNA", "percent.mt"), 
+        ncol = 3)
+
+# Get an idea of the correlation between the QC metrics after filtering
+plot1 <- FeatureScatter(seurat_obj, 
+  feature1 = "nCount_RNA", feature2 = "percent.mt", group.by = "condition")
+plot2 <- FeatureScatter(seurat_obj, 
+  feature1 = "nCount_RNA", feature2 = "nFeature_RNA", group.by = "condition")
+plot1 + plot2
