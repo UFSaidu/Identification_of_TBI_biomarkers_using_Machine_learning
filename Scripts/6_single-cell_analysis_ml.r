@@ -160,3 +160,7 @@ seurat_obj <- RunUMAP(seurat_obj, dims = 1:18)
 
 # Save final seurat obj
 saveRDS(seurat_obj, file = "~/WGCNALASSO/Output/seurat_obj.rds")
+
+# Marker Gene Identification for all Clusters
+all_markers <- FindAllMarkers(seurat_obj, only.pos = TRUE, min.pct = 0.25, logfc.threshold = 0.25)
+write.csv(all_markers, file = "~/WGCNALASSO/Output/all_markers.csv")
