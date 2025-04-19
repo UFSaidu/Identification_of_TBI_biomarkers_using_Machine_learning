@@ -127,3 +127,36 @@ plot1 <- FeatureScatter(seurat_obj,
 plot2 <- FeatureScatter(seurat_obj, 
   feature1 = "nCount_RNA", feature2 = "nFeature_RNA", group.by = "condition")
 plot1 + plot2
+
+#--------------------------------------------------
+  # Step 3: Follow Nomal Seurat Standard Workflow
+#--------------------------------------------------
+
+# Normalize data
+seurat_obj <- NormalizeData(seurat_obj, normalization.method = "LogNormalize", scale.factor = 10000)
+
+# Find highly variable feature (genes)
+seurat_obj <- FindVariableFeatures(seurat_obj, 
+                                   selection.method = "vst", 
+                                   nfeatures = 2000)
+
+# Scale data to remove unwanted sources of variation in the data. 
+# So that the cells have mean expression of 0 and variance of 1. 
+seurat_obj <- ScaleData(seurat_obj)
+
+# Run PCA to remove technical noice from the data
+seurat_obj <- RunPCA(seurat_obj)
+
+# Use elbow plot and DimHeatmap to get an ideal of the number of PCs to choose.
+# Using Elbowplot(), we observed an elbow around PC16-20, suggesting that the majority
+# of true signal is captured in the first 20 principal components (PCs).
+ElbowPlot(seurat_obj)
+DimHeatmap(seurat_obj, dims = 1:18, cells = 500, balanced = TRUE)
+
+# We used 18 PCs to find Gene clusters
+seurat_obj <- FindNeighbors(seurat_obj, dims = 1:18)
+seurat_obj <- FindClusters(seurat_obj, resolution = 0.5)
+seurat_obj <- RunUMAP(seurat_obj, dims = 1:18)
+
+# Save final seurat obj
+saveRDS(seurat_obj, file = "~/WGCNALASSO/Output/seurat_obj.rds")
