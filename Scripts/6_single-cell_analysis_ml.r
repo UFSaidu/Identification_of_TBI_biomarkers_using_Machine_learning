@@ -239,3 +239,21 @@ seurat_obj <- RenameIdents(seurat_obj, new_ids)
 saveRDS(seurat_obj, file = "~/WGCNALASSO/Output/seurat_obj_annotated.rds")
 seurat_obj <- readRDS(file = "~/WGCNALASSO/Output/seurat_obj_annotated.rds")
 
+#----------------------------------------------------------
+# Cell type specific visualization of target genes
+#----------------------------------------------------------
+
+DimPlot(seurat_obj, label = TRUE, repel = TRUE)
+
+FeaturePlot(seurat_obj, features = c("Icam1", "Tyrobp"))
+
+VlnPlot(seurat_obj, 
+        features = c("Icam1", "Tyrobp"),
+        layer = "data",    
+        pt.size = 0.2) 
+
+DotPlot(seurat_obj, 
+        features = c("Icam1", "Tyrobp"),
+        cols = c("lightgrey", "red")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + coord_flip()
+
