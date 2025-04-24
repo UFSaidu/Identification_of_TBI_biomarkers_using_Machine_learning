@@ -211,12 +211,12 @@ best_annotations <- annotation_matches %>%
 # hallmark genes, we manually re-annotate cluster 4 as Endothelial cells. Next,
 # using well known marker genes, we're able to classify interneurons as either
 # Excitatory or Inhibitory neurons. It's important to cross-check annotations
-# with well know marker genes for each specific cell type.
+# with well known marker genes for each specific cell type.
 
 new_ids <- c(
   "0" = "C0-Oligodendrocytes",
   "1" = "C1-Astrocytes",
-  "2" = "C4-Excitatory Neurons",
+  "2" = "C2-Excitatory Neurons",
   "3" = "C3-Microglia",
   "4" = "C4-Endothelial",
   "5" = "C5-Immature Neurons",
@@ -257,3 +257,79 @@ DotPlot(seurat_obj,
         cols = c("lightgrey", "red")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + coord_flip()
 
+#----------------------------------------------------------
+# Annotation of Peripheral/Infiltrating immune cells
+#----------------------------------------------------------
+
+# TBI involve dynamic interactions between resident and infiltrating cells, 
+# and Icam1 and Tyrobp likely play roles in both. Therefore, looking at the 
+# expression of Icam1 and Tyrobp in both resident and infiltrating immune cells, 
+# ensures we capture the full neuro-immune axis of TBI.
+
+# Subset panglaoDB markers to include only immune system
+# Filter for immune system ONLY (exclude brain-specific markers)
+immune_markers <- subset(panglaoDB_full_markers, organ == "Immune system") 
+
+# Subset Seurat data to include cells with high hallmark immune markers ONLY
+immune_features <- c("Cd68", "Ptprc", "Cd45", "Cd3e", "Cd19", "Cd14", 
+                     "Adgre1", "Ly6c2", "Nkg7")
+immune_cells <- WhichCells(seurat_obj, expression = Ptprc > 1 | Cd14 > 0.5 | Cd3e > 0.5 | Cd19 > 0.5 | Cd98 > 1)
+seurat_immune <- subset(seurat_obj, cells = immune_cells)
+
+# Re-cluster the cells to capture just immune cell populations
+seurat_immune <- NormalizeData(seurat_immune) %>% 
+  FindVariableFeatures(nfeatures = 2000) %>%
+  ScaleData() %>% 
+  RunPCA() %>% 
+  FindNeighbors(dims = 1:30) %>% 
+  FindClusters(resolution = 0.6) %>% 
+  RunUMAP(dims = 1:30)
+
+# Get the top 5 markers for each cluster
+top_immune_markers <- FindAllMarkers(seurat_immune, only.pos = TRUE, 
+                                     min.pct = 0.25, logfc.threshold = 0.5) %>%
+  group_by(cluster) %>% 
+  slice_max(n = 5, order_by = avg_log2FC)
+
+# Use panglaoDB immune markers to find best match
+annotation_matches <- top_immune_markers %>%
+  mutate(gene_upper = toupper(gene)) %>%
+  inner_join(immune_markers, 
+             by = c("gene_upper" = "official.gene.symbol")) %>%
+  group_by(cluster, cell.type) %>%
+  summarise(n_matches = n(), .groups = "drop") %>%
+  arrange(cluster, desc(n_matches)) 
+
+best_annotations <- annotation_matches %>%
+  group_by(cluster) %>%
+  slice_max(n = 1, order_by = n_matches, with_ties = FALSE)
+
+# Four clusters were annotated by panglaoDB based on the number of hits between
+# panglaoDB immune markers and top 5 markers for each cluster. However, cluster
+# 3 was incorrectly labeled as Dendritic cells. Dendritic cells were suggested
+# by panglaoDB due to overlap with Thbs1/Plac8, but missing Flt3/Zbtb46, which
+# are key DC markers. Also, Ccr2 is monocyte-specific. Thus, using the top 5 
+# markers for cluster 3, with high expression of Ccr2, zero expression of 
+# Flt3/Zbtb46 (DC markers), and zero expression of Trem2 (Macrophage marker), 
+# we manually re-annotate cluster 3 as "Inflammatory Monocytes".
+
+immune_ids <- c(
+  "0" = "C0-T Cells",
+  "1" = "C1-Macrophages",
+  "2" = "C2-Dendritic Cells",
+  "3" = "C3-Inflammatory Monocytes"
+)
+
+# Add new cluster labels
+seurat_immune@meta.data$immune_annot <- immune_ids[as.character(seurat_immune@meta.data$seurat_clusters)]
+seurat_immune@meta.data$immune_annot <- factor(
+  seurat_immune@meta.data$immune_annot,
+  levels = immune_ids
+)
+# Set Idents from metadata
+Idents(seurat_immune) <- seurat_immune@meta.data$immune_annot
+
+# Save Seurat_immune and top immune markers to file
+saveRDS(seurat_immune, file = "~/WGCNALASSO/Output/seurat_immune_annotated.rds")
+write.csv(top_immune_markers, file = "~/WGCNALASSO/Output/top_immune_markers.csv")
+seurat_immune <- readRDS(file = "~/WGCNALASSO/Output/seurat_immune_annotated.rds")
