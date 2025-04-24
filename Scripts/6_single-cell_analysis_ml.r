@@ -333,3 +333,21 @@ Idents(seurat_immune) <- seurat_immune@meta.data$immune_annot
 saveRDS(seurat_immune, file = "~/WGCNALASSO/Output/seurat_immune_annotated.rds")
 write.csv(top_immune_markers, file = "~/WGCNALASSO/Output/top_immune_markers.csv")
 seurat_immune <- readRDS(file = "~/WGCNALASSO/Output/seurat_immune_annotated.rds")
+
+#----------------------------------------------------------
+# Cell type specific visualization of target genes
+#----------------------------------------------------------
+
+DimPlot(seurat_immune, label = TRUE, repel = TRUE)
+
+FeaturePlot(seurat_immune, features = c("Icam1", "Tyrobp"))
+
+VlnPlot(seurat_immune, 
+        features = c("Icam1", "Tyrobp"),
+        layer = "data",    
+        pt.size = 0.2) 
+
+DotPlot(seurat_immune, 
+        features = c("Icam1", "Tyrobp"),
+        cols = c("lightgrey", "red")) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + coord_flip()
