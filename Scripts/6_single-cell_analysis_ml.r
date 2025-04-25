@@ -257,6 +257,24 @@ DotPlot(seurat_obj,
         cols = c("lightgrey", "red")) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) + coord_flip()
 
+seurat_heatmap <- subset(seurat_obj, downsample = 1)
+
+DoHeatmap(seurat_heatmap, 
+          features = top_markers$gene, 
+          disp.min = 0,
+          disp.max = 2.5,
+          size = 4,
+          raster = TRUE,
+          draw.lines = FALSE,
+          group.bar.height = 0.02) +
+  guides(color = "none") +
+  scale_fill_gradientn(
+    colors = c("purple", "black", "yellow"),
+    limits = c(0, 2.5),
+    breaks = c(0, 1, 2.5),
+    labels = c("0", "1", "2.5")
+  )
+
 #----------------------------------------------------------
 # Annotation of Peripheral/Infiltrating immune cells
 #----------------------------------------------------------
