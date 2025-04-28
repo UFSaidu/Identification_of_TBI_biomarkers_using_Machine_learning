@@ -285,3 +285,6 @@ DoHeatmap(seurat_heatmap,
     breaks = c(0, 1, 2.5),
     labels = c("0", "1", "2.5")
   )
+
+# Icam1 and Tyrobp are highly expressed in Microglia, Astrocytes, and Endothelia
+# cells. Thus, we'll re-cluster these cells to identify sub types.
