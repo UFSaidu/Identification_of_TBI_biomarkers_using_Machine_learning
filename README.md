@@ -9,6 +9,7 @@
 - **Age** drive TBI progression and outcomes. Core genes were correlated with age and associated with injury progression and neurodegeneration.
 
 ## **Next Steps**  
+- **Proteomic analysis** quantify proteins encoded by the core genes in serum and cerebrospinal fluid.
 - **Diagnostic potential** of core genes using **GLM, SVM, and XGBoost** with **ROC analysis**.
 - **Nomogram construction** for risk prediction.  
 - **Calibration & Decision Curve Analysis (DCA)** to assess clinical utility of core genes.  
