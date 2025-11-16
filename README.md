@@ -14,6 +14,6 @@
 - **Nomogram construction** for risk prediction.  
 - **Calibration & Decision Curve Analysis (DCA)** to assess clinical utility of core genes.  
 
-📌 **This README will be updated as the project progresses.**  
+📌 **This README will be updated as the project progresses. Full code will be uploaded to the repository after the paper has been accepted for publication.**  
 
 Last updated: **September 2025**
