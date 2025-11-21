@@ -6,6 +6,7 @@
 - Investigatd **diagnostic potential** of core genes using **GLM, SVM, and XGBoost** with **ROC analysis**.
 - Next, we constructed a **nomogram model** for risk prediction incorporating core genes.
 - **Calibration & Decision Curve Analysis (DCA)** were performed to further assess clinical utility of core genes.
+- **Immune cell infiltration** analysis revealed significant infiltration of neutrophils, monocytes, macrophages, and mast cells following TBI. These cells were positively correlated with core genes, driving neuroinflammation post-injury.
 - **single-cell RNA-seq** validation of the core genes revealed predominant microglia expression, with minimal expression in astrocytes and endothelial cells. The core genes were involved in leukocyte recruitment and microglia activation, driving neuroinflammation and immune cell infiltration post-TBI.
 - Performed **trajectory analysis** on microglia subtypes using **Slingshot** package in **R** to identify microglia lineages and map pseudotime injury responses.
 - Further validated core genes using  microglia RNA-seq data from cortex, incorporating different time-points (acute, subacute, and chronic TBI stages). We observed that core genes exhibited temporal expression patterns across time-points.
